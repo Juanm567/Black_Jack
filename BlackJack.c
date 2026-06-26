@@ -12,7 +12,7 @@ typedef struct {
 } Cards;
 
 void user_prompt(char *choice){
-    printf("Please enter your choice (Type 'hit' or 'stand' or 'Randomize' or 'Deal' or you may type 'quit'): ");
+    printf("\nPlease enter your choice (Type 'hit' or 'stand' or 'Randomize' or 'Deal' or you may type 'quit'): ");
 
     scanf("%s", choice);
 
@@ -20,7 +20,7 @@ void user_prompt(char *choice){
         choice[i] = tolower(choice[i]);
     }
 
-    printf("You chose: %s\n", choice);
+    printf("You chose to : %s\n\n", choice);
 }
 
 void test_show_deck(Cards *Cards_deck){
@@ -46,6 +46,7 @@ void shuffle_deck(Cards *Cards_deck){
 
 void deal(Cards *Cards_deck, Cards *dealer, Cards *player){
 
+    shuffle_deck(Cards_deck);
     int dealer_counter = 0;
     int player_counter = 0;
     for (int i = 0; i < 4; i++){
@@ -58,24 +59,66 @@ void deal(Cards *Cards_deck, Cards *dealer, Cards *player){
         }
     }
     printf("Dealer's hand:");
-    for (int i = 0; i < 1; i++){
+    for (int i = 0; i < 2; i++){
         printf("%d%s", dealer[i].value, dealer[i].suit);
-        printf(" XX");
     }
     printf("\nYour hand:");
     for (int i = 0; i < 2; i++){
         printf("%d%s", player[i].value, player[i].suit);
     }
     printf("\n");
+    int player_score = 0;
+    int dealer_score = 0;
+    for (int i = 0; i < 2; i++){
+        player_score += (player[i].value);
+        dealer_score += (dealer[i].value);
+    }
+    switch (player_score){
+        case 21:
+            printf("Blackjack! You win!\n");
+            if (dealer_score == 21){
+                printf("Dealer also has a blackjack! It's a tie!\n");
+            }
+            break;
+    }
+    if(player_score > 21){
+        printf("You busted! Dealer wins!\n");
+    } else if(dealer_score > 21){
+        printf("Dealer busted! You win!\n");
+    }
 
 }
 // You were working on the function `validate_blackjack` which is intended to validate the scores of the player and dealer in a blackjack game. Below is a possible implementation of this function:
-void validate_blackjack(Cards *player, Cards *dealer){
+void validate_score(Cards *player, Cards *dealer){
     int player_score = 0;
     int dealer_score = 0;
+    for (int i = 0; i < 2; i++){
+        player_score += (player[i].value);
+        dealer_score += (dealer[i].value);
+    }
+    // printf("Player score: %d\n", player_score);
+    // printf("Dealer score: %d\n", dealer_score);
+    switch (player_score){
+        case 21:
+            printf("Blackjack! You win!\n");
+            if (dealer_score == 21){
+                printf("Dealer also has a blackjack! It's a tie!\n");
+            }
+            break;
+    }
+    if(player_score > 21){
+        printf("You busted! Dealer wins!\n");
+    } else if(dealer_score > 21){
+        printf("Dealer busted! You win!\n");
+    } else if(player_score > dealer_score){
+        printf("You win with a score of %d against the dealer's %d!\n", player_score, dealer_score);
+    } else if(dealer_score > player_score){
+        printf("Dealer wins with a score of %d against your %d!\n", dealer_score, player_score);
+    } 
 
-    
 }
+
+//void hit(Cards *Cards_deck, Cards *player, int *player_counter){}
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
@@ -94,7 +137,7 @@ int main() {
         {8, "♣"}, {9, "♣"}, {10, "♣"}, {11, "♣"}, {12, "♣"}, {13, "♣"}
     };
 
-    printf("This is blackjack\nYou have 4 options hit or stand or randomize or deal and may shuffle the deck at any time\n\n");
+    printf("\nThis is blackjack\nYou have 4 options hit or stand or randomize or deal and may shuffle the deck at any time\n\n");
 
     char choice[10];    //Set up a char array to hold the user input
     Cards dealer[52];
@@ -105,20 +148,22 @@ int main() {
 
         switch (choice[0]){
             case 'h':
-                printf("You chose to hit\n");
                 break;
             case 'r':
                 shuffle_deck(Cards_deck);
-                printf("You chose to randomize the deck\n");
+                printf("Deck has been shuffled!:\n");
                 test_show_deck(Cards_deck);
                 break;
             case 's':
-                printf("You chose to stand\n");
+                if (dealer[0].value == 0 || player[0].value == 0){
+                    printf("You need to deal the cards first!\n");
+                    break;
+                }else {
+                    validate_score(player, dealer);
+                }
                 break;
             case 'd': // Here we will also validate for a blackjack after dealing the cards
-                printf("You chose to deal\n");
                 deal(Cards_deck, dealer, player);
-                validate_blackjack(player, dealer);
 
                 break;
             case 'q':
@@ -127,10 +172,4 @@ int main() {
         }
 
     }
-
-    
-
-    
-
-
 }
